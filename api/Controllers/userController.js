@@ -52,3 +52,32 @@ exports.getUser = async (req, res) => {
   }
 };
 
+exports.updateUser = async (req, res) => {
+  try {
+    const { jId } = req.params;
+    const { sign } = req.body;
+
+    const user = await User.findOneAndUpdate(
+      { jId },
+      { sign },
+      { new: true }
+    );
+
+    if (!user) {
+      throw new Error("Utilisateur non trouvé");
+    }
+
+    res.status(200).json({
+      jId: user.jId,
+      pseudo: user.pseudo,
+      phone: user.phone,
+      sign: user.sign,
+      message: "Utilisateur mis à jour avec succès",
+    });
+  } catch (error) {
+    res.status(404).json({
+      error: error.message,
+    });
+  }
+};
+

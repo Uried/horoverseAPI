@@ -17,14 +17,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "null"
   },
-  reminderTime: {
-    type: Date,
-    default: function () {
-      const defaultReminderTime = new Date();
-      defaultReminderTime.setHours(6, 0, 0, 0);
-      return defaultReminderTime;
-    },
-  },
+  tokenFCM:{
+    type:String,
+    required:true
+  }
 });
 
 module.exports = mongoose.model("User", userSchema);

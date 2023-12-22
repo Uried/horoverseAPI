@@ -5,8 +5,12 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const users = require("./api/Routes/userRoute");
 const axios = require("axios");
+const User = require('./api/Models/User')
+const admin = require("firebase-admin");
+const serviceAccount = require("./api/serviceAccount/horoverse-15fe0-firebase-adminsdk-s2x5d-5abcb84e01.json");
 
 const app = express();
+const router = express.Router();
 dotenv.config();
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));

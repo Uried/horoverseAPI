@@ -1,15 +1,18 @@
 const User = require("../Models/User");
+const cron = require("node-cron");
+const admin = require("firebase-admin");
+const serviceAccount = require("../serviceAccount/horoverse-15fe0-firebase-adminsdk-s2x5d-5abcb84e01.json");
 
 exports.addUser = async (req, res) => {
   try {
-    const { jId, pseudo, phone, sign, reminderTime } = req.body;
+    const { jId, pseudo, phone, sign, tokenFCM} = req.body;
 
     const newUser = new User({
       jId: jId,
       pseudo: pseudo,
       phone: phone,
       sign: sign,
-      reminderTime: reminderTime,
+      tokenFCM: tokenFCM
     });
 
     await newUser.save();
@@ -25,6 +28,25 @@ exports.addUser = async (req, res) => {
     console.log(error.message);
   }
 };
+
+exports.getUsers = (req, res) => {
+  User.find()
+    .exec()
+    .then((result) => {
+      res.status(200).json({
+        message: "Utilisateurs",
+        count: result.length,
+        data: result,
+      });
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({
+        error,
+      });
+    });
+};
+
 
 exports.getUser = async (req, res) => {
   try {
@@ -81,3 +103,28 @@ exports.updateUser = async (req, res) => {
   }
 };
 
+//send notifications to users
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+
+cron.schedule("0 6 * * *", async () => {
+  try {
+    const users = await User.find();
+    for (const user of users) {
+      const pseudo = user.pseudo
+      const message = {
+        token: user.tokenFCM,
+        notification: {
+          title: "Horoverse",
+          body: `Bonjour ${pseudo} consulte ton horoscope du jour`,
+          icon: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Ayoba_app_logo.png",
+        },
+      };
+      await admin.messaging().send(message);
+    }
+    console.log("Notifications envoyées avec succès.");
+  } catch (error) {
+    console.error("Erreur lors de l'envoi des notifications", error);
+  }
+});

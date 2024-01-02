@@ -108,7 +108,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-cron.schedule("0 6 * * *", async () => {
+cron.schedule("36 13 * * *", async () => {
   try {
     const users = await User.find();
     for (const user of users) {
@@ -118,7 +118,7 @@ cron.schedule("0 6 * * *", async () => {
         notification: {
           title: "Horoverse",
           body: `Bonjour ${pseudo} consulte ton horoscope du jour`,
-          icon: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Ayoba_app_logo.png",
+         // icon: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Ayoba_app_logo.png",
         },
       };
       await admin.messaging().send(message);

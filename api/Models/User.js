@@ -19,7 +19,7 @@ const userSchema = new mongoose.Schema({
   },
   tokenFCM:{
     type:String,
-    required:true
+    required:false
   }
 });
 

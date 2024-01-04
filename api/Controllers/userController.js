@@ -1,7 +1,7 @@
 const User = require("../Models/User");
 const cron = require("node-cron");
 const admin = require("firebase-admin");
-const serviceAccount = require("../serviceAccount/horoverse-15fe0-firebase-adminsdk-s2x5d-5abcb84e01.json");
+const serviceAccount = require("../serviceAccount/horoverse-b0fc1-firebase-adminsdk-p3k2i-a9a39438ee.json");
 
 exports.addUser = async (req, res) => {
   try {
@@ -108,7 +108,7 @@ admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
 
-cron.schedule("36 13 * * *", async () => {
+cron.schedule("0 6 * * *", async () => {
   try {
     const users = await User.find();
     for (const user of users) {

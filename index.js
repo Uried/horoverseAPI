@@ -7,7 +7,7 @@ const users = require("./api/Routes/userRoute");
 const axios = require("axios");
 const User = require("./api/Models/User");
 const admin = require("firebase-admin");
-const serviceAccount = require("./api/serviceAccount/horoverse-15fe0-firebase-adminsdk-s2x5d-5abcb84e01.json");
+const serviceAccount = require("./api/serviceAccount/horoverse-b0fc1-firebase-adminsdk-p3k2i-a9a39438ee.json");
 
 const app = express();
 const router = express.Router();
@@ -44,6 +44,21 @@ app.get("/api/horoscope/:sign/", async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "An error occurred" });
   }
+});
+
+app.put("/update-fcm-token/:jId", (req, res) => {
+  const { jId } = req.params;
+  const { token } = req.body;
+
+  // Mettez à jour le token FCM dans MongoDB en fonction de jId
+  User.findOneAndUpdate({ jId }, { tokenFCM: token })
+    .then(() => {
+      res.sendStatus(200);
+    })
+    .catch((error) => {
+      console.error("Erreur lors de la mise à jour du token FCM:", error);
+      res.sendStatus(500);
+    });
 });
 
 // admin.initializeApp({

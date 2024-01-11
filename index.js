@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const users = require("./api/Routes/userRoute");
+const blogs = require("./api/Routes/blogRoute");
+const publications = require("./api/Routes/publicationRoute");
 const axios = require("axios");
 const User = require("./api/Models/User");
 const admin = require("firebase-admin");
@@ -34,6 +36,8 @@ const port = process.env.PORT || 5900;
 
 app.get("/", (req, res) => res.send("Hello, ready to communicate! "));
 app.use("/users", users);
+app.use("/blogs", blogs);
+app.use("/publications", publications);
 app.get("/api/horoscope/:sign/", async (req, res) => {
   try {
     const { sign } = req.params;

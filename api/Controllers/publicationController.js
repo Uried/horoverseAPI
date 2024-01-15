@@ -98,11 +98,28 @@ exports.deleteComment = async (req, res) => {
     const { publicationId, commentId } = req.params;
 
     const publication = await Publication.findById(publicationId);
-    publication.comments.id(commentId).remove();
+
+    if (!publication) {
+      return res.status(404).json({ error: "Publication introuvable" });
+    }
+
+    // Trouver l'index du commentaire dans le tableau comments
+    const commentIndex = publication.comments.findIndex(
+      (comment) => comment._id.toString() === commentId
+    );
+
+    if (commentIndex === -1) {
+      return res.status(404).json({ error: "Commentaire introuvable" });
+    }
+
+    // Supprimer le commentaire du tableau comments en utilisant la méthode pull()
+    publication.comments.pull(publication.comments[commentIndex]);
+
     const savedPublication = await publication.save();
 
     res.status(200).json(savedPublication);
   } catch (error) {
+    console.error("Erreur lors de la suppression du commentaire :", error);
     res
       .status(500)
       .json({ error: "Erreur lors de la suppression du commentaire" });

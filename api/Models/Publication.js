@@ -3,14 +3,14 @@ const mongoose = require("mongoose");
 // Schéma pour la réponse
 const responseSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  photo: { type: String, required: true },
+  photo: { type: String, required: false },
   content: { type: String, required: true },
 });
 
 // Schéma pour le commentaire
 const commentSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  photo: { type: String, required: true },
+  photo: { type: String, required: false },
   content: { type: String, required: true },
   responses: [responseSchema], // Référence au schéma de réponse
 });

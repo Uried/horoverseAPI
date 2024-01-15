@@ -8,7 +8,9 @@ const blogs = require("./api/Routes/blogRoute");
 const publications = require("./api/Routes/publicationRoute");
 const axios = require("axios");
 const User = require("./api/Models/User");
-const admin = require("firebase-admin");
+const Publication = require("./api/Models/Publication")
+
+const cron = require("node-cron");
 const serviceAccount = require("./api/serviceAccount/horoverse-b0fc1-firebase-adminsdk-p3k2i-a9a39438ee.json");
 
 const app = express();
@@ -26,8 +28,10 @@ async function connectToDatabase() {
       useUnifiedTopology: true,
     });
     console.log("Connected to MongoDB");
+    return Promise.resolve(); // Résoudre la promesse
   } catch (error) {
     console.log("Erreur de connexion à MongoDB: " + error.message);
+    return Promise.reject(error); // Rejeter la promesse en cas d'erreur
   }
 }
 
@@ -65,31 +69,62 @@ app.put("/update-fcm-token/:jId", (req, res) => {
     });
 });
 
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount),
-// });
+cron.schedule("0 1 * * *", () => {
+ saveDailyHoroscopes()
+});
 
-// router.post("/send-notifications", async (req, res) => {
-//   try {
-//     const users = await User.find();
-//     for (const user of users) {
-//       const message = {
-//         token: user.tokenFCM,
-//         notification: {
-//           title: "Titre de la notification",
-//           body: "Contenu de la notification",
-//         },
-//       };
+const horoscopes = {};
 
-//       await admin.messaging().send(message);
-//     }
-//     console.log("Notifications envoyées avec succès.");
-//     res.status(200).json({ message: "Notifications envoyées avec succès." });
-//   } catch (error) {
-//     console.error("Erreur lors de l'envoi des notifications", error);
-//     res.status(500).json({ error: "Erreur lors de l'envoi des notifications" });
-//   }
-// });
+async function getHoroscopes() {
+  await connectToDatabase();
+  const signArray = [
+    "aries",
+    "pisces",
+    "gemini",
+    "taurus",
+    "libra",
+    "scorpio",
+    "cancer",
+    "leo",
+    "virgo",
+    "sagittarius",
+    "capricorn",
+    "aquarius",
+  ];
+
+  for (const sign of signArray) {
+    const apiUrl = `https://any.ge/horoscope/api/?sign=${sign}&type=daily&day=today&lang=en`;
+    await axios.get(apiUrl).then((response) => {
+      result = response.data[0].text;
+      const text = result.replace(/<[^>]+>/g, "");
+      horoscopes[sign] = text;
+    });
+    
+  }
+
+
+return Promise.resolve();
+}
+
+
+async function saveDailyHoroscopes() {
+  await getHoroscopes();
+  console.log(horoscopes);
+  try {
+    // Créez une instance de la publication avec les données fournies
+    const publication = new Publication(horoscopes);
+
+    // Enregistrez la publication dans la base de données
+    const nouvellePublication = await publication.save();
+
+    console.log("Publication enregistrée :", nouvellePublication);
+    return nouvellePublication;
+  } catch (error) {
+    console.error("Erreur lors de l'enregistrement de la publication :", error);
+    throw error;
+  }
+}
+getHoroscopes();
 
 app.listen(port, () => {
   console.log("Server is running on port " + port);

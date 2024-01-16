@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const users = require("./api/Routes/userRoute");
 const blogs = require("./api/Routes/blogRoute");
 const publications = require("./api/Routes/publicationRoute");
+const logs = require("./api/Routes/logRoute")
 const axios = require("axios");
 const User = require("./api/Models/User");
 const Publication = require("./api/Models/Publication")
@@ -36,12 +37,13 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
-const port = process.env.PORT || 5900;
+const port = process.env.PORT || 5400;
 
 app.get("/", (req, res) => res.send("Hello, ready to communicate! "));
 app.use("/users", users);
 app.use("/blogs", blogs);
 app.use("/publications", publications);
+app.use("/logs", logs)
 app.get("/api/horoscope/:sign/", async (req, res) => {
   try {
     const { sign } = req.params;

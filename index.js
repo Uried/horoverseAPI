@@ -96,16 +96,24 @@ async function getHoroscopes() {
 
   for (const sign of signArray) {
     const apiUrl = `https://any.ge/horoscope/api/?sign=${sign}&type=daily&day=today&lang=en`;
-    await axios.get(apiUrl).then((response) => {
-      result = response.data[0].text;
-      const text = result.replace(/<[^>]+>/g, "");
-      horoscopes[sign] = text;
-    });
-    
+    await axios
+      .get(apiUrl)
+      .then((response) => {
+        if (response.data && response.data.length > 0) {
+          const result = response.data[0].text;
+          const text = result.replace(/<[^>]+>/g, "");
+          horoscopes[sign] = text;
+        } else {
+          console.error(`Aucune donnée disponible pour le signe ${sign}`);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          `Erreur lors de la récupération des données pour le signe ${sign}:`,
+          error
+        );
+      });
   }
-
-
-return Promise.resolve();
 }
 
 

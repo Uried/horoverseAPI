@@ -11,8 +11,7 @@ const axios = require("axios");
 const User = require("./api/Models/User");
 const Publication = require("./api/Models/Publication")
 
-const cron = require("node-cron");
-const serviceAccount = require("./api/serviceAccount/horoverse-b0fc1-firebase-adminsdk-p3k2i-a9a39438ee.json");
+//const serviceAccount = require("./api/serviceAccount/horoverse-b0fc1-firebase-adminsdk-p3k2i-a9a39438ee.json");
 
 const app = express();
 const router = express.Router();
@@ -71,61 +70,14 @@ app.put("/update-fcm-token/:jId", (req, res) => {
     });
 });
 
-cron.schedule("0 1 * * *", () => {
- saveDailyHoroscopes()
-});
-
-const horoscopes = {};
-
-async function getHoroscopes() {
-  await connectToDatabase();
-  const signArray = [
-    "aries",
-    "pisces",
-    "gemini",
-    "taurus",
-    "libra",
-    "scorpio",
-    "cancer",
-    "leo",
-    "virgo",
-    "sagittarius",
-    "capricorn",
-    "aquarius",
-  ];
-
-  for (const sign of signArray) {
-    const apiUrl = `https://any.ge/horoscope/api/?sign=${sign}&type=daily&day=today&lang=en`;
-    await axios
-      .get(apiUrl)
-      .then((response) => {
-        if (response.data && response.data.length > 0) {
-          const result = response.data[0].text;
-          const text = result.replace(/<[^>]+>/g, "");
-          horoscopes[sign] = text;
-        } else {
-          console.error(`Aucune donnée disponible pour le signe ${sign}`);
-        }
-      })
-      .catch((error) => {
-        console.error(
-          `Erreur lors de la récupération des données pour le signe ${sign}:`,
-          error
-        );
-      });
-  }
-}
-
-
-async function saveDailyHoroscopes() {
-  await getHoroscopes();
-  console.log(horoscopes);
+app.post("/savehoroscopes", (req, res) => {
+    const {horoscopes} = req.body
   try {
     // Créez une instance de la publication avec les données fournies
     const publication = new Publication(horoscopes);
 
     // Enregistrez la publication dans la base de données
-    const nouvellePublication = await publication.save();
+    const nouvellePublication = publication.save();
 
     console.log("Publication enregistrée :", nouvellePublication);
     return nouvellePublication;
@@ -133,8 +85,7 @@ async function saveDailyHoroscopes() {
     console.error("Erreur lors de l'enregistrement de la publication :", error);
     throw error;
   }
-}
-getHoroscopes();
+})
 
 app.listen(port, () => {
   console.log("Server is running on port " + port);

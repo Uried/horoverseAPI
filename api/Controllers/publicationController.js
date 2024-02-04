@@ -1,9 +1,10 @@
 const Publication = require("../Models/Publication");
+const Daily = require("../Models/DailyHoroscopeSchema")
 
 // Ajouter une publication
 exports.addPublication = async (req, res) => {
   try {
-    const newPublication = new Publication(req.body);
+    const newPublication = new Daily(req.body);
     const savedPublication = await newPublication.save();
     res.status(200).json(savedPublication);
   } catch (error) {
@@ -13,12 +14,20 @@ exports.addPublication = async (req, res) => {
 
 exports.getAllPublications = async (req, res) => {
   try {
-    const publications = await Publication.find();
+  
+    const publications = await Daily.find({
+    });
+    if (!publications) {
+      return res
+        .status(404)
+        .json({ error: "Aucun horoscope trouvé pour cette langue" });
+    }
+
     res.status(200).json(publications);
   } catch (error) {
     res
       .status(500)
-      .json({ error: "Erreur lors de la récupération des publications" });
+      .json({ error: "Erreur lors de la récupération des horoscopes" });
   }
 };
 
@@ -26,9 +35,11 @@ exports.getAllPublications = async (req, res) => {
 exports.getPublication = async (req, res) => {
   try {
     const { publicationId } = req.params;
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
     res.status(200).json(publication);
+    console.log(publication);
   } catch (error) {
+    console.error(error);
     res
       .status(500)
       .json({ error: "Erreur lors de la récupération de la publication" });
@@ -38,7 +49,7 @@ exports.getPublication = async (req, res) => {
 exports.getComments = async (req, res) => {
   try {
     const { publicationId } = req.params;
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
     const comments = publication.comments;
     res.status(200).json(comments);
   } catch (error) {
@@ -52,7 +63,7 @@ exports.getComments = async (req, res) => {
 exports.getResponses = async (req, res) => {
   try {
     const { publicationId, commentId } = req.params;
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
     const comment = publication.comments.id(commentId);
     const responses = comment.responses;
     res.status(200).json(responses);
@@ -67,7 +78,7 @@ exports.getResponses = async (req, res) => {
 exports.deletePublication = async (req, res) => {
   try {
     const { publicationId } = req.params;
-    await Publication.findByIdAndDelete(publicationId);
+    await Daily.findByIdAndDelete(publicationId);
     res.status(200).json({ message: "Publication supprimée avec succès" });
   } catch (error) {
     res
@@ -82,7 +93,7 @@ exports.addComment = async (req, res) => {
     const { publicationId } = req.params;
     const { name, photo, content } = req.body;
 
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
     publication.comments.push({ name, photo, content });
     const savedPublication = await publication.save();
 
@@ -97,7 +108,7 @@ exports.deleteComment = async (req, res) => {
   try {
     const { publicationId, commentId } = req.params;
 
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
 
     if (!publication) {
       return res.status(404).json({ error: "Publication introuvable" });
@@ -132,7 +143,7 @@ exports.addResponse = async (req, res) => {
     const { publicationId, commentId } = req.params;
     const { name, photo, content } = req.body;
 
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
     const comment = publication.comments.id(commentId);
     comment.responses.push({ name, photo, content });
     const savedPublication = await publication.save();
@@ -148,7 +159,7 @@ exports.deleteResponse = async (req, res) => {
   try {
     const { publicationId, commentId, responseId } = req.params;
 
-    const publication = await Publication.findById(publicationId);
+    const publication = await Daily.findById(publicationId);
     const comment = publication.comments.id(commentId);
     comment.responses.id(responseId).remove();
     const savedPublication = await publication.save();

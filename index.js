@@ -6,6 +6,10 @@ const mongoose = require("mongoose");
 const users = require("./api/Routes/userRoute");
 const blogs = require("./api/Routes/blogRoute");
 const publications = require("./api/Routes/publicationRoute");
+const yearly = require("./api/Routes/yearlyRoute");
+const monthly = require("./api/Routes/monthlyRoute");
+const daily = require("./api/Routes/dailyRoute");
+const weekly = require("./api/Routes/weeklyRoute");
 const logs = require("./api/Routes/logRoute")
 const axios = require("axios");
 const User = require("./api/Models/User");
@@ -36,12 +40,16 @@ async function connectToDatabase() {
 }
 
 connectToDatabase();
-const port = process.env.PORT || 5400;
+const port = process.env.PORT || 5800;
 
 app.get("/", (req, res) => res.send("Hello, ready to communicate! "));
 app.use("/users", users);
 app.use("/blogs", blogs);
 app.use("/publications", publications);
+app.use("/weekly", weekly);
+app.use("/daily", daily);
+app.use("/monthly", monthly);
+app.use("/yearly", yearly);
 app.use("/logs", logs)
 app.get("/api/horoscope/:sign/", async (req, res) => {
   try {
@@ -86,6 +94,26 @@ app.post("/savehoroscopes", (req, res) => {
     throw error;
   }
 })
+
+const options = {
+  method: "GET",
+  url: "https://horoscopes-ai.p.rapidapi.com/get_horoscope/libra/today/general/fr",
+  headers: {
+    "X-RapidAPI-Key": "c79e7cce1dmsh6fd8ba52278c9d4p1d6288jsn7bbcd57be239",
+    "X-RapidAPI-Host": "horoscopes-ai.p.rapidapi.com",
+  },
+};
+
+async function get_horoscope(){
+  try {
+  const response = await axios.request(options);
+  console.log(response.data);
+} catch (error) {
+  console.error(error);
+}
+}
+
+
 
 app.listen(port, () => {
   console.log("Server is running on port " + port);

@@ -9,10 +9,8 @@ router.post("/", publicationController.addPublication);
 router.delete("/:publicationId", publicationController.deletePublication);
 
 router.get("/", publicationController.getAllPublications);
-router.get(
-  "/:publicationId",
-  publicationController.getPublication
-);
+
+router.get("/byId/:publicationId",publicationController.getPublication);
 
 // Ajouter un commentaire à une publication
 router.post("/:publicationId/comments", publicationController.addComment);
